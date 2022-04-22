@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width">
+  <title>JS Bin</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div id="main">
+    <header>
+      fgf
+    </header>
+    <div id='sidebar'>
+      <ul>
+        <li onclick='displayAllItems()'>All</li>
+        <li>This Week</li>
+        <li>Projects</li>
+          <ul id='projects'>
+            <!--Display items from project list-->
+          </ul>
+      </ul>
+        <!--Symbol to display adding a new project-->
+      <svg xmlns="http://www.w3.org/2000/svg" 
+          viewBox="0 0 448 512" 
+          width=25 
+          height=25 
+          onclick="projectFormPopUp()">
+        <!--! Font Awesome Pro 6.1.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license (Commercial License) Copyright 2022 Fonticons, Inc. -->
+        <path d="M432 256c0 17.69-14.33 32.01-32 32.01H256v144c0 17.69-14.33 31.99-32 31.99s-32-14.3-32-31.99v-144H48c-17.67 0-32-14.32-32-32.01s14.33-31.99 32-31.99H192v-144c0-17.69 14.33-32.01 32-32.01s32 14.32 32 32.01v144h144C417.7 224 432 238.3 432 256z"/>
+      </svg>
+    </div>
+
+    <div id="item-display">
+
+    </div>
+
+    <div id='project-display'>
+      <h2 id='project-title'></h2>
+      <div id="project-editing">
+        <div id="project-edit">
+        </div>
+        <div id="project-delete">
+        </div>
+      </div>
+      <!--Table to display this projects to do list items-->
+      <table id='items-table'>  
+      </table>
+    </div>
+  </div>
+
+  <form id='new-project-form'>
+    <legend>New Project</legend><br>
+    <label for="name">Name:</label>
+    <input type="text" id="projectname" name="name" required><br><br>
+    <input id='projectSubmit' type="submit" value="Submit" onclick='closeCreateNewProject()'>
+  </form>
+  
+  <form id='new-to-do-list-form' >
+    <legend>New To Do List Item</legend><br>
+    <!--Title-->
+    <label for="name">Title:</label>
+    <input type="text" id="new-to-do-list-item-title" name="name" required><br><br>
+    <!--item description-->
+    <label for="name">Description:</label>
+    <input type="text" id="item-description" name="description" required><br><br>
+    
+    <!--item due date-->
+    <label for="duedate">Due Date:</label>
+    <input type="date" id="duedate" name="duedate"
+        max="2099-12-31" required><br>
+    <!--item priority-->
+    <label for="priority">Priority:</label>
+    <select name="priority" id="priority">
+      <option value="0">Low</option>
+      <option value="1">Medium</option>
+      <option value="2">High</option>
+    </select><br>
+    <!--item project-->
+    <label for="project">Project:</label>
+    <select name="project" id="item-project-dropdown">
+      
+    </select>
+    <br>
+    <input id='item-submit' type="submit" value="Submit" onclick='closeNewItemForm()'>
+  </form>
+
+</body>
+<script src="scripts.js">
+
+</script>
+</html>
