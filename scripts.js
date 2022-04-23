@@ -9,7 +9,7 @@ let projectSearchObj={}
 
 //saved frequently used document elements
 let itemForm=document.getElementById('new-to-do-list-form');
-let projectTable= document.getElementById('items-table')
+let projectTable= document.getElementById('project-items-table')
 let projectDisplay = document.getElementById('project-display')
 let projectForm=document.getElementById('new-project-form') 
 let projectTitle=document.getElementById('project-title')
@@ -46,9 +46,9 @@ const projectFactory= (title)=> {
 //function to set project to complete if all 
  //of its items are complete
 //create a to do list item
-const itemFactory= (title, description,projectIndex, priority,duedate, status=false) =>{
-  function changePriority(index){
-    this.priority=priorities[index]
+const itemFactory= (title, description,projectIndex, priorityIndex,duedate, status=false) =>{
+  function changePriorityIndex(index){
+    this.priorityIndex=index
   }
   function changeTitle(newTitle){
     this.title = newTitle
@@ -65,8 +65,8 @@ const itemFactory= (title, description,projectIndex, priority,duedate, status=fa
   function changeStatus(newStatus){
     this.status = newStatus
   }
-  return{ title, description,projectIndex,priority,duedate,status,
-    changePriority,changeTitle,changeDescription,changeProject,changeDueDate,changeStatus
+  return{ title, description,projectIndex,priorityIndex,duedate,status,
+    changeTitle,changeDescription,changeProject,changeDueDate,changeStatus,changePriorityIndex
   }
 }
 
@@ -225,6 +225,7 @@ function closeCreateNewProject(projectIndex){
       }
     //update display
     displayProjectTitles()
+    displayProjectItems(projectIndex)
     }
 }
 
@@ -245,13 +246,13 @@ function validateProjectName(title){
 }
 
 //make header row function
-function makeHeaderRow(){
+function makeHeaderRow(itemsList){
   let headerRow= document.createElement('tr')
   let status = document.createElement('th')
   let title = document.createElement('th')   
   let priority = document.createElement('th')
   let duedate = document.createElement('th')
-  //let project=document.createElement('td')
+  let project=document.createElement('th')
   
   status.innerText='Status'
   //project.innerText='Project'
@@ -264,6 +265,11 @@ function makeHeaderRow(){
   headerRow.appendChild(priority)
   headerRow.appendChild(duedate)
   //headerRow.appendChild(project)
+  if (itemsList!=undefined){
+    project.innerText='Project'
+    headerRow.appendChild(project)
+  }
+  
   return headerRow
 }
 
@@ -303,6 +309,7 @@ function emptyProjectItemsDisplay(){
 }
 
 function displayProjectItems(projectIndex){
+  toggleDisplay('projectitems')
   editProjectButton.innerHTML='<button>Edit Project</button>'
   editProjectButton.onclick=function(){projectFormPopUp(projectIndex)}
   deleteButton.innerHTML=`<button onclick='deleteProject(${projectIndex})'>Delete</button>`
@@ -331,7 +338,7 @@ function displayProjectItems(projectIndex){
 
      status.innerText=projects[projectIndex].items[i].status
      itemTitle.innerText=projects[projectIndex].items[i].title
-     priority.innerText=projects[projectIndex].items[i].priority
+     priority.innerText=priorities[projects[projectIndex].items[i].priorityIndex]
      duedate.innerText= projects[projectIndex].items[i].duedate
      
     //create buttons to edit properties, project, status
@@ -380,7 +387,7 @@ function openCreateNewItem(projectIndex,itemIndex){
     let title= document.getElementById('new-to-do-list-item-title')
     let description= document.getElementById('item-description')
     let duedate= document.getElementById('duedate')
-    let priority= document.getElementById('priority')
+    let priorityIndex= document.getElementById('priority')
     //let projectDropDown= document.getElementById('item-project-dropdown')
     //let status= document.getElementById('new-to-do-list-item-title')
     
@@ -395,7 +402,7 @@ function openCreateNewItem(projectIndex,itemIndex){
     title.value=currentTitle;
     description.value=currentDescription
     duedate.value=currentDate
-    priority.placeholder=currentPriority
+    priorityIndex.placeholder=currentPriority
     projectIndex.value=currentProjectIndex
 
     //change onclick to include this item and index index
@@ -416,11 +423,11 @@ function closeNewItemForm(projectIndex,itemIndex){
   let index=document.getElementById('item-project-dropdown').value
   let duedate = document.getElementById('duedate').value
   let description = document.getElementById('item-description').value
-  let priority = document.getElementById('priority').value
+  let priorityIndex = document.getElementById('priority').value
 
   //dont check name if the item is being edited
   if(projectIndex!=undefined &&itemIndex!=undefined){
-    let updatedItem = itemFactory(itemTitle,description,index,priorities[priority],duedate)
+    let updatedItem = itemFactory(itemTitle,description,index,priorityIndex,duedate)
     project.items[itemIndex]=updatedItem
     addProjectProps(project)
     //save the project
@@ -432,7 +439,7 @@ function closeNewItemForm(projectIndex,itemIndex){
     if(result==true){
       //if it is true then we want to create a new item within this project
       //make instance of item and give it its attributes 
-      let item = itemFactory(itemTitle,description,index,priorities[priority],duedate)
+      let item = itemFactory(itemTitle,description,index,priorityIndex,duedate)
       addNewItemtoProject(item,projects[index])
     }
     else if(result=='empty'){
@@ -504,41 +511,70 @@ function getListOfAllItems(){
   return itemsList
 }
 
-//sort given list by priority
-function sortListByPriority(list){
-  
-
-}
-
-//next steps
-//all items page
-//page to display all to do list items with projects
-//first get all items
-itemsList= getListOfAllItems()
-//then sort it by date
-sortListByDate(itemsList)
-//then save function to sort it by priority
-
-//then display list after it has been sorted
-
 //toggle display function so only certain portions of the page are displayed at once
 function toggleDisplay(section){
+  let projectDisplay= document.getElementById('project-display')
+  let itemsDisplay= document.getElementById('item-display')
+  
   //if section = items//
+  if(section=='allitems'){
+    projectDisplay.style.display='none'
+    itemsDisplay.style.display='block'
+  }
   //section for projects display
-  //
+  if(section=='projectitems'){
+    projectDisplay.style.display='block'
+    itemsDisplay.style.display='none'
+  }
 }
 
 //display items list
 function displayItemsList(list){
-  //toggle on items-dsiplay and turn off everything else
-  toggleDisplay()
+  //add button to sort the given list by date
+  let sortByDateButton = document.getElementById('date-sort')
+  sortByDateButton.onclick=function(){displayListSortedByDate(list)}
+  //button to sort by priority
+  let sortByPriorityButton=document.getElementById('priority-sort')
+  sortByPriorityButton.onclick=function(){displayListSortedByPriority(list)}
+
+  let headerRow=makeHeaderRow('showprojects')
+  let br = document.createElement("BR");
+  let itemsDisplayTable= document.getElementById('items-display-table')
+  itemsDisplayTable.innerHTML=''
+  itemsDisplayTable.appendChild(headerRow)
   for (let i=0;i<list.length;i++){
-    console.log(list[i].title)
-  }
+    let itemRow= document.createElement('tr')
+    let status = document.createElement('td')
+    let itemTitle = document.createElement('td')
+    let priority = document.createElement('td')
+    let duedate = document.createElement('td')
+    let projectTitle = document.createElement('td')
+
+    status.innerText=list[i].status
+    itemTitle.innerText=list[i].title
+    priority.innerText=priorities[list[i].priorityIndex]
+    duedate.innerText= list[i].duedate
+    projectTitle.innerText=projects[list[i].projectIndex].title
+    
+    itemRow.appendChild(status)
+    itemRow.appendChild(itemTitle)
+    itemRow.appendChild(priority)
+    itemRow.appendChild(duedate)
+    itemRow.appendChild(projectTitle)
+    itemRow.innerHTML+='<br>'
+    
+    itemsDisplayTable.appendChild(itemRow)
+    //add a new line for next line
+    itemsDisplayTable.appendChild(br);
+   }
 }
 
 function displayAllItems(){
   let itemsList = getListOfAllItems()
+  //toggle on items-dsiplay and turn off everything else
+  toggleDisplay('allitems')
+  //add buttons to items display to sort list
+
   displayItemsList(itemsList)
 }
 
@@ -552,13 +588,44 @@ function sortListByDate(list){
   return list
 }
 
-//authorization?
+function displayListSortedByDate(list){
+  list = sortListByDate(list)
+  displayItemsList(list)
+}
+
+
+function displayListSortedByPriority(list){
+  list = sortListByPriority(list)
+  displayItemsList(list)
+}
+
+//sort given list by priority
+function sortListByPriority(list){
+  list.sort((a, b) => {
+    if (a.priorityIndex > b.priorityIndex) {
+      return -1;
+    }
+    if (a.priorityIndex < b.priorityIndex) {
+      return 1;
+    }
+    return 0;
+  });
+  return list
+}
 
 retrieveData()
 displayProjectTitles()
+displayAllItems(itemsList)
+//next steps
+//all items page buttons to sort list by date priority or both
+//fix create new project for when i want to reenter the same name for the proejct being edited
+//add a sort button for each project page
+//css and visual
+//when i click off of a form I want to close it and unblur background
+//when editing item the date is not already stored
+//edit button on all items page
 
-displayAllItems()
-console.log(sortListByDate(itemsList))
-
-
+//delete button on all items page
+//change priority onclick in all pages
+//authorization?
 
